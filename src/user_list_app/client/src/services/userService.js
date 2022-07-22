@@ -3,14 +3,14 @@ const baseUrl = 'http://localhost:3005/api/users';
 export const getAll = async () => {
     const response = await fetch(baseUrl);
     const result = await response.json();
-    
+
     return result.users;
 };
 
 export const getOne = async (userId) => {
     const response = await fetch(`${baseUrl}/${userId}`);
     const result = await response.json();
-    
+
     return result.user;
 };
 
@@ -20,12 +20,16 @@ export const create = async (userData) => {
         headers: {
             'content-type': 'application/json',
         },
-        body: JSON.stringify(userData)  
-    })
+        body: JSON.stringify(userData)
+    });
 
-    const result = await response.json();
+    if (response.ok) {
+        const result = await response.json();
 
-    return result.user
+        return result.user;
+    } else {
+        throw { message: 'Unable to create user' };
+    }
 }
 
 export const edit = async (userId, userData) => {
@@ -34,7 +38,7 @@ export const edit = async (userId, userData) => {
         headers: {
             'content-type': 'application/json',
         },
-        body: JSON.stringify(userData)  
+        body: JSON.stringify(userData)
     })
 
     const result = await response.json();
