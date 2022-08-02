@@ -1,19 +1,27 @@
-import { useState } from "react";
-import { useParams } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Link, useParams } from "react-router-dom";
+import * as gameService from '../../services/gameService';
 
-export const GameDetails = ({ games, addComment }) => {
+export const GameDetails = ({ addComment }) => {
+
     const { gameId } = useParams();
+    const [currentGame, setCurrentGame] = useState({});
     const [comment, setComment] = useState({
-        username:'',
-        comment:'',
+        username: '',
+        comment: '',
     });
 
     const [error, setError] = useState({
-        username:'',
-        comment:'',
+        username: '',
+        comment: '',
     });
 
-    const game = games.find(g => g._id === gameId);
+    useEffect(() => {
+        gameService.getOne(gameId)
+            .then(result => {
+                setCurrentGame(result);
+            });
+    });
 
     const addCommentHandler = (e) => {
         e.preventDefault();
@@ -31,7 +39,7 @@ export const GameDetails = ({ games, addComment }) => {
         const username = e.target.value;
         let errorMessage = '';
 
-        if(username.length <= 4) {
+        if (username.length <= 4) {
             errorMessage = 'Username must be longer than 4 characters';
         } else if (username.length >= 10) {
             errorMessage = 'Username must be shorter than 10 characters';
@@ -48,39 +56,39 @@ export const GameDetails = ({ games, addComment }) => {
             <h1>Game Details</h1>
             <div className="info-section">
                 <div className="game-header">
-                    <img className="game-img" src={game.imageUrl} alt="" />
-                    <h1>{game.title}</h1>
-                    <span className="levels">MaxLevel: {game.maxLevel}</span>
-                    <p className="type">{game.category}y</p>
+                    <img className="game-img" src={currentGame.imageUrl} alt="" />
+                    <h1>{currentGame.title}</h1>
+                    <span className="levels">MaxLevel: {currentGame.maxLevel}</span>
+                    <p className="type">{currentGame.category}y</p>
                 </div>
                 <p className="text">
-                    {game.summary}
+                    {currentGame.summary}
                 </p>
                 {/* Bonus ( for Guests and Users ) */}
                 <div className="details-comments">
                     <h2>Comments:</h2>
                     <ul>
                         {/* list all comments for current game (If any) */}
-                        {game.comments?.map(c => 
+                        {/* {currentGame.comments?.map(c =>
                             <li className="comment">
                                 <p>{c}</p>
                             </li>
-                        )}
+                        )} */}
                     </ul>
 
                     {/* Display paragraph: If there are no games in the database */}
-                    {!game.comments &&
+                    {/* {!currentGame.comments &&
                         <p className="no-comment">No comments.</p>
-                    }
+                    } */}
                 </div>
                 {/* Edit/Delete buttons ( Only for creator of this game )  */}
                 <div className="buttons">
-                    <a href="#" className="button">
+                    <Link to={`/games/${currentGame._id}/edit`} className="button">
                         Edit
-                    </a>
-                    <a href="#" className="button">
+                    </Link>
+                    <Link to="#" className="button">
                         Delete
-                    </a>
+                    </Link>
                 </div>
             </div>
             {/* Bonus */}
@@ -97,8 +105,8 @@ export const GameDetails = ({ games, addComment }) => {
                         value={comment.username}
                     />
 
-                    {error.username && 
-                     <div style={{color: 'red'}}>{error.username}</div>
+                    {error.username &&
+                        <div style={{ color: 'red' }}>{error.username}</div>
                     }
 
                     <textarea
