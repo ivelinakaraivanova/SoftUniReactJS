@@ -4,14 +4,14 @@ import * as gameService from '../../services/gameService';
 
 
 export const CreateGame = () => {
-    const {gameAdd} = useContext(GameContext);
+    const { gameAdd } = useContext(GameContext);
 
     const onSubmit = (e) => {
         e.preventDefault();
-        
+
         const gameData = Object.fromEntries(new FormData(e.target));
         gameService.create(gameData)
-        .then(result => {gameAdd(result)});
+            .then(result => { gameAdd(result) });
     }
 
     return (

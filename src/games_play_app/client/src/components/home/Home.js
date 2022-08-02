@@ -1,7 +1,10 @@
+import { useContext } from "react";
+import { GameContext } from "../../context/GameContext";
 import { LatestGame } from './latest-game/LatestGame';
 
-export const Home = ({games}) => {
-    
+export const Home = () => {
+    const { games } = useContext(GameContext);
+
     return (
         <section id="welcome-world">
             <div className="welcome-message">
