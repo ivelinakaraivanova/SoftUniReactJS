@@ -1,4 +1,4 @@
-import { createContext, useEffect, useReducer, useState } from "react";
+import { createContext, useEffect, useReducer } from "react";
 import { useNavigate } from "react-router-dom";
 import * as gameService from '../services/gameService';
 
@@ -7,11 +7,16 @@ export const GameContext = createContext();
 const gameReducer = (state, action) => {
     switch (action.type) {
         case 'ADD_GAMES':
-            return [...action.payload]
+            return action.payload.map(g => ({ ...g, comments: [] }));
         case 'ADD_GAME':
-            return [...state, action.payload]
+            return [...state, action.payload];
+        case 'FETCH_GAME-DETAILS':
         case 'EDIT_GAME':
-            return state.map(g => g._id === action.gameId ? action.payload : g)
+            return state.map(g => g._id === action.gameId ? action.payload : g);
+        case 'ADD_COMMENT':
+            return state.map(g => g._id === action.gameId ? { ...g, comments: [...g.comments, action.payload] } : g);
+        case 'DELETE_GAME':
+            return state.filter(g => g._id !== action.gameId);
         default:
             return state
     }
@@ -29,11 +34,29 @@ export const GameProvider = ({ children }) => {
                     type: 'ADD_GAMES',
                     payload: result
                 }
-                dispatcher(action)
+                dispatcher(action);
             });
     }, []);
 
+    const selectGame = (gameId) => {
+        return games.find(g => g._id === gameId) || {};
+    };
+
+    const fetchGameDetails = (gameId, gameDetails) => {
+        dispatcher({
+            type: 'FETCH_GAME-DETAILS',
+            payload: gameDetails,
+            gameId,
+        });
+    };
+
     const addComment = (gameId, comment) => {
+        dispatcher({
+            type: 'ADD_COMMENT',
+            payload: comment,
+            gameId
+        });
+
         // setGames(state => {
         //     const game = state.find(g => g._id === gameId);
         //     const comments = game.comments || [];
@@ -67,10 +90,17 @@ export const GameProvider = ({ children }) => {
             payload: gameData,
             gameId
         })
-    }
+    };
+
+    const gameDelete = (gameId) => {
+        dispatcher({
+            type: 'DELETE_GAME',
+            gameId
+        });
+    };
 
     return (
-        <GameContext.Provider value={{ games, gameAdd, gameEdit, addComment }}>
+        <GameContext.Provider value={{ games, gameAdd, gameEdit, addComment, fetchGameDetails, selectGame, gameDelete }}>
             {children}
         </GameContext.Provider>
     );

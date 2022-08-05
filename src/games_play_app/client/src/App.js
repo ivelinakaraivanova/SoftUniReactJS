@@ -2,6 +2,7 @@ import { Routes, Route } from 'react-router-dom';
 
 import { AuthProvider } from './context/AuthContext';
 import { GameProvider } from './context/GameContext';
+import { PrivateRoute } from './components/common/PrivateRoute';
 
 import { Header } from './components/header/Header';
 import { Home } from './components/home/Home';
@@ -14,6 +15,7 @@ import { Catalog } from './components/catalog/Catalog';
 import { GameDetails } from './components/game-details/GameDetails';
 
 import './App.css';
+import { GameOwner } from './components/common/GameOwner';
 
 function App() {
 
@@ -29,9 +31,17 @@ function App() {
                             <Route path='/' element={<Home />} />
                             <Route path='/login' element={<Login />} />
                             <Route path='/register' element={<Register />} />
-                            <Route path='/logout' element={<Logout />} />
-                            <Route path='/create' element={<CreateGame />} />
-                            <Route path='/games/:gameId/edit' element={<EditGame />} />
+                            <Route path='/create' element={(
+                                <PrivateRoute>
+                                    <CreateGame />
+                                </PrivateRoute>
+                            )} />
+                            <Route element={<GameOwner />}>
+                                <Route path='/games/:gameId/edit' element={<EditGame />} />
+                            </Route>
+                            <Route element={<PrivateRoute />}>
+                                <Route path='/logout' element={<Logout />} />
+                            </Route>
                             <Route path='/catalog' element={<Catalog />} />
                             <Route path='/catalog/:gameId' element={<GameDetails />} />
                         </Routes>
